@@ -1,0 +1,17 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Frontend build
+dist/
+
+# Go binaries
+*.exe
+
+# OS files
+.DS_Store
+Thumbs.db

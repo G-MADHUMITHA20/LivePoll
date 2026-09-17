@@ -10,8 +10,8 @@ Required Flow: Create Poll → Share Link → Audience Votes → Live Results
 ## Required Technology Stack
 - **Frontend**: React (Vite, Tailwind CSS, React Router)
 - **Backend**: Go with Gin
-- **Database**: MongoDB (Planned for later stages)
-- **Realtime**: Redis (Planned for later stages)
+- **Database**: MongoDB 
+- **Realtime**: Redis
 
 ## Current Project Structure
 ```
@@ -44,7 +44,4 @@ Required Flow: Create Poll → Share Link → Audience Votes → Live Results
 4. The backend will typically run at `http://localhost:8080`.
 5. You can test the API health check at `http://localhost:8080/api/v1/health`.
 
-## Status
-- **Stage 1 (Current)**: Project foundation and UI/UX foundation are implemented.
-- **Stage 2 (Planned)**: Authentication, poll creation, database integration.
-- **Stage 3 (Planned)**: Real-time voting with Redis.
+

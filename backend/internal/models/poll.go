@@ -19,5 +19,6 @@ type Poll struct {
 	Status    string             `bson:"status" json:"status"` // e.g., "active", "closed"
 	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	ExpiresAt *time.Time         `bson:"expires_at,omitempty" json:"expires_at,omitempty"`
+	StartTime *time.Time         `bson:"start_time,omitempty" json:"start_time,omitempty"`
+	EndTime   *time.Time         `bson:"end_time,omitempty" json:"end_time,omitempty"`
 }

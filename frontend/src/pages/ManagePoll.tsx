@@ -6,6 +6,8 @@ export const ManagePoll = () => {
   const { id } = useParams();
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState<any[]>([]);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [poll, setPoll] = useState<any>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -13,6 +15,14 @@ export const ManagePoll = () => {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
+
+  // Helper to format ISO date to datetime-local
+  const formatForInput = (isoString: string) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    // YYYY-MM-DDThh:mm
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -22,6 +32,8 @@ export const ManagePoll = () => {
           setPoll(res.poll);
           setQuestion(res.poll.question);
           setOptions(res.poll.options.map((o: any) => o.text));
+          if (res.poll.start_time) setStartTime(formatForInput(res.poll.start_time));
+          if (res.poll.end_time) setEndTime(formatForInput(res.poll.end_time));
         }
       } catch (err: any) {
         setError(err.message || 'Failed to load poll. It may have been deleted.');
@@ -47,11 +59,26 @@ export const ManagePoll = () => {
     const validOptions = options.map(o => o.trim()).filter(o => o !== '');
     if (validOptions.length < 2) return setError('At least 2 non-empty options are required');
     
+    let parsedStartTime = null;
+    let parsedEndTime = null;
+    if (startTime) parsedStartTime = new Date(startTime).toISOString();
+    if (endTime) parsedEndTime = new Date(endTime).toISOString();
+
+    if (parsedStartTime && parsedEndTime && new Date(parsedStartTime) >= new Date(parsedEndTime)) {
+      return setError('Start time must be before end time');
+    }
+    
     setSaving(true);
     try {
       const res = await request(`/polls/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ question, options: validOptions }),
+        body: JSON.stringify({ 
+          question, 
+          options: validOptions, 
+          status: poll.status,
+          start_time: parsedStartTime,
+          end_time: parsedEndTime
+        }),
       });
       if (res.success) {
         setSuccess('Poll updated successfully!');
@@ -61,6 +88,30 @@ export const ManagePoll = () => {
       }
     } catch (err: any) {
       setError(err.message || 'Failed to update poll');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleClosePoll = async () => {
+    if (!window.confirm("Are you sure you want to close this poll? This action cannot be undone and will permanently disable voting.")) return;
+    
+    setSaving(true);
+    setError('');
+    setSuccess('');
+    try {
+      const validOptions = options.map(o => o.trim()).filter(o => o !== '');
+      const res = await request(`/polls/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ question, options: validOptions, status: 'closed' }),
+      });
+      if (res.success) {
+        setSuccess('Poll closed successfully!');
+        setPoll(res.poll); // sync latest state
+        setTimeout(() => setSuccess(''), 3000);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to close poll');
     } finally {
       setSaving(false);
     }
@@ -183,6 +234,27 @@ export const ManagePoll = () => {
                 </button>
               )}
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Start Time (Optional)</label>
+                <input 
+                  type="datetime-local" 
+                  value={startTime} onChange={e => setStartTime(e.target.value)} 
+                  className="input-field text-sm text-gray-900" 
+                  disabled={saving || poll.status !== 'active'} 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">End Time (Optional)</label>
+                <input 
+                  type="datetime-local" 
+                  value={endTime} onChange={e => setEndTime(e.target.value)} 
+                  className="input-field text-sm text-gray-900" 
+                  disabled={saving || poll.status !== 'active'} 
+                />
+              </div>
+            </div>
             
             <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
               <button 
@@ -223,6 +295,20 @@ export const ManagePoll = () => {
               Open public page ↗
             </Link>
           </div>
+          
+          {poll.status === 'active' && (
+            <div className="card border border-red-100 shadow-sm">
+              <h3 className="font-bold text-lg text-red-700 mb-2">Danger Zone</h3>
+              <p className="text-gray-500 text-sm mb-4">Closing the poll will permanently disable new votes. Existing results will be preserved.</p>
+              <button 
+                onClick={handleClosePoll} 
+                disabled={saving}
+                className="w-full py-2.5 rounded-lg font-medium text-sm text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Processing...' : 'Close Poll'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

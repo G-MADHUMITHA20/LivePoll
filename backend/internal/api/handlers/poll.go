@@ -21,7 +21,8 @@ func NewPollHandler(pollService service.PollService) *PollHandler {
 type createPollRequest struct {
 	Question  string     `json:"question" binding:"required,max=300"`
 	Options   []string   `json:"options" binding:"required,min=2,max=20,dive,required,max=100"`
-	ExpiresAt *time.Time `json:"expires_at"`
+	StartTime *time.Time `json:"start_time"`
+	EndTime   *time.Time `json:"end_time"`
 }
 
 func (h *PollHandler) CreatePoll(c *gin.Context) {
@@ -37,7 +38,7 @@ func (h *PollHandler) CreatePoll(c *gin.Context) {
 		return
 	}
 
-	poll, err := h.pollService.CreatePoll(c.Request.Context(), userID.(string), req.Question, req.Options, req.ExpiresAt)
+	poll, err := h.pollService.CreatePoll(c.Request.Context(), userID.(string), req.Question, req.Options, req.StartTime, req.EndTime)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
@@ -92,13 +93,19 @@ func (h *PollHandler) UpdatePoll(c *gin.Context) {
 		return
 	}
 
-	var req createPollRequest
+	var req struct {
+		Question  string     `json:"question" binding:"required,max=300"`
+		Options   []string   `json:"options" binding:"required,min=2,max=20,dive,required,max=100"`
+		Status    string     `json:"status"`
+		StartTime *time.Time `json:"start_time"`
+		EndTime   *time.Time `json:"end_time"`
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid input data"})
 		return
 	}
 
-	poll, err := h.pollService.UpdatePoll(c.Request.Context(), pollID, userID.(string), req.Question, req.Options, req.ExpiresAt)
+	poll, err := h.pollService.UpdatePoll(c.Request.Context(), pollID, userID.(string), req.Question, req.Options, req.Status, req.StartTime, req.EndTime)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return

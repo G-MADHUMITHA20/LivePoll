@@ -63,12 +63,16 @@ func (s *voteService) SubmitVote(ctx context.Context, pollID string, optionID st
 		return errors.New("poll not found")
 	}
 
-	if poll.Status != "active" {
-		return errors.New("poll is no longer active")
+	if poll.Status == "closed" {
+		return errors.New("poll is manually closed")
 	}
 
-	if poll.ExpiresAt != nil && poll.ExpiresAt.Before(time.Now()) {
-		return errors.New("poll has expired")
+	if poll.StartTime != nil && time.Now().Before(*poll.StartTime) {
+		return errors.New("poll is scheduled")
+	}
+
+	if poll.EndTime != nil && time.Now().After(*poll.EndTime) {
+		return errors.New("poll is expired")
 	}
 
 	// Validate Option exists in this poll

@@ -40,7 +40,8 @@ func (h *PublicHandler) GetPublicPoll(c *gin.Context) {
 			"options":    poll.Options,
 			"status":     poll.Status,
 			"created_at": poll.CreatedAt,
-			"expires_at": poll.ExpiresAt,
+			"start_time": poll.StartTime,
+			"end_time":   poll.EndTime,
 		},
 		"results": results, // Optional static results mapping option_id -> count
 	})

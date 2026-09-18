@@ -6,14 +6,21 @@ export const PublicPoll = () => {
   const { id } = useParams();
   const [poll, setPoll] = useState<any>(null);
   const [results, setResults] = useState<Record<string, number>>({});
-  const [selectedOption, setSelectedOption] = useState<string>('');
+  const [selectedOption, setSelectedOption] = useState<string>(() => {
+    return localStorage.getItem(`voted_option_${id}`) || '';
+  });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [hasVoted, setHasVoted] = useState(false);
+  const [hasVoted, setHasVoted] = useState(() => {
+    return localStorage.getItem(`voted_${id}`) === 'true';
+  });
   
   const [connectionStatus, setConnectionStatus] = useState<'Connecting…' | 'Live' | 'Reconnecting…'>('Connecting…');
+  
+  const [effectiveStatus, setEffectiveStatus] = useState<'SCHEDULED' | 'ACTIVE' | 'EXPIRED' | 'CLOSED' | 'LOADING'>('LOADING');
+  const [countdownStr, setCountdownStr] = useState<string>('');
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -35,7 +42,54 @@ export const PublicPoll = () => {
   }, [id]);
 
   useEffect(() => {
-    if (!poll || poll.status !== 'active') return;
+    if (!poll) return;
+    
+    const updateStatus = () => {
+      if (poll.status === 'closed') {
+        setEffectiveStatus('CLOSED');
+        setCountdownStr('');
+        return;
+      }
+      
+      const now = Date.now();
+      const startTime = poll.start_time ? new Date(poll.start_time).getTime() : 0;
+      const endTime = poll.end_time ? new Date(poll.end_time).getTime() : Infinity;
+      
+      const formatCountdown = (ms: number) => {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        if (hours > 24) {
+          const days = Math.floor(hours / 24);
+          return `${days}d ${hours % 24}h`;
+        }
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      };
+
+      if (startTime > now) {
+        setEffectiveStatus('SCHEDULED');
+        setCountdownStr(`Starts in ${formatCountdown(startTime - now)}`);
+      } else if (now > endTime) {
+        setEffectiveStatus('EXPIRED');
+        setCountdownStr('');
+      } else {
+        setEffectiveStatus('ACTIVE');
+        if (endTime !== Infinity) {
+          setCountdownStr(`Ends in ${formatCountdown(endTime - now)}`);
+        } else {
+          setCountdownStr('');
+        }
+      }
+    };
+
+    updateStatus();
+    const interval = setInterval(updateStatus, 1000);
+    return () => clearInterval(interval);
+  }, [poll]);
+
+  useEffect(() => {
+    if (!poll || effectiveStatus !== 'ACTIVE') return;
 
     const sse = new EventSource(`http://localhost:8080/api/v1/public/polls/${id}/events`);
     
@@ -67,12 +121,16 @@ export const PublicPoll = () => {
     };
 
     return () => sse.close();
-  }, [poll, id]);
+  }, [poll, id, effectiveStatus]);
 
   const handleVote = async () => {
-    if (!selectedOption) return;
+    if (!selectedOption) {
+      setError('Please select an option before submitting.');
+      return;
+    }
     setSubmitting(true);
     setError('');
+    setSuccess('');
     
     try {
       const res = await fetch(`http://localhost:8080/api/v1/public/polls/${id}/vote`, {
@@ -85,9 +143,18 @@ export const PublicPoll = () => {
       if (res.ok && data.success) {
         setSuccess('Your vote has been securely recorded.');
         setHasVoted(true);
+        localStorage.setItem(`voted_${id}`, 'true');
+        localStorage.setItem(`voted_option_${id}`, selectedOption);
       } else {
-        setError(data.message || 'Failed to submit vote');
-        if (res.status === 409) setHasVoted(true); // Already voted
+        if (res.status === 409) {
+          setHasVoted(true);
+          localStorage.setItem(`voted_${id}`, 'true');
+          // Highlight the option they just tried to select as their locked choice
+          localStorage.setItem(`voted_option_${id}`, selectedOption);
+          setSuccess('You have already voted in this poll.');
+        } else {
+          setError(data.message || 'Failed to submit vote');
+        }
       }
     } catch (err) {
       setError('A network error occurred while submitting your vote.');
@@ -122,18 +189,30 @@ export const PublicPoll = () => {
       <div className="w-full max-w-xl card shadow-sm mt-4 md:mt-12">
         <div className="mb-10 text-center flex flex-col items-center">
           <div className="flex gap-2 items-center mb-4">
-            <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full tracking-wide ${poll.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {poll.status === 'active' ? 'ACTIVE POLL' : 'CLOSED POLL'}
+            <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full tracking-wide ${
+              effectiveStatus === 'ACTIVE' ? 'bg-green-100 text-green-700' : 
+              effectiveStatus === 'SCHEDULED' ? 'bg-blue-100 text-blue-700' :
+              effectiveStatus === 'EXPIRED' ? 'bg-orange-100 text-orange-700' :
+              'bg-red-100 text-red-700'
+            }`}>
+              {effectiveStatus === 'ACTIVE' ? 'ACTIVE POLL' : 
+               effectiveStatus === 'SCHEDULED' ? 'SCHEDULED' : 
+               effectiveStatus === 'EXPIRED' ? 'EXPIRED' : 'CLOSED POLL'}
             </span>
-            {poll.status === 'active' && (
+            {effectiveStatus === 'ACTIVE' && (
               <span className={`text-xs font-medium flex items-center gap-1.5 px-3 py-1 rounded-full border ${connectionStatus === 'Live' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-yellow-50 text-yellow-600 border-yellow-200'}`}>
                 <span className={`w-2 h-2 rounded-full ${connectionStatus === 'Live' ? 'bg-blue-500 animate-pulse' : 'bg-yellow-500'}`}></span>
                 {connectionStatus}
               </span>
             )}
           </div>
+          {countdownStr && (
+            <div className="text-sm font-semibold text-gray-500 mb-3 bg-gray-100 px-4 py-1.5 rounded-full inline-block">
+              ⏱️ {countdownStr}
+            </div>
+          )}
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight leading-snug">{poll.question}</h1>
-          {hasVoted && (
+          {hasVoted && effectiveStatus === 'ACTIVE' && (
             <p className="text-sm text-gray-500 mt-3 font-medium bg-gray-100 px-3 py-1 rounded-full inline-block">
               {totalVotes} Total Votes
             </p>
@@ -154,16 +233,22 @@ export const PublicPoll = () => {
                 key={opt.id}
                 role="radio"
                 aria-checked={isSelected}
-                tabIndex={hasVoted || poll.status !== 'active' ? -1 : 0}
-                onClick={() => !hasVoted && poll.status === 'active' && setSelectedOption(opt.id)}
-                onKeyDown={(e) => {
-                  if ((e.key === 'Enter' || e.key === ' ') && !hasVoted && poll.status === 'active') {
-                    e.preventDefault();
+                tabIndex={hasVoted || effectiveStatus !== 'ACTIVE' ? -1 : 0}
+                onClick={() => {
+                  if (!hasVoted && effectiveStatus === 'ACTIVE') {
                     setSelectedOption(opt.id);
+                    setError(''); // Clear any validation error on selection
                   }
                 }}
-                className={`relative overflow-hidden p-5 rounded-xl border-2 transition-all ${hasVoted || poll.status !== 'active' ? '' : 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transform hover:-translate-y-0.5 shadow-sm hover:shadow'} ${
-                  hasVoted ? 'border-gray-200 cursor-default' : 
+                onKeyDown={(e) => {
+                  if ((e.key === 'Enter' || e.key === ' ') && !hasVoted && effectiveStatus === 'ACTIVE') {
+                    e.preventDefault();
+                    setSelectedOption(opt.id);
+                    setError('');
+                  }
+                }}
+                className={`relative overflow-hidden p-5 rounded-xl border-2 transition-all ${hasVoted || effectiveStatus !== 'ACTIVE' ? '' : 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transform hover:-translate-y-0.5 shadow-sm hover:shadow'} ${
+                  hasVoted || effectiveStatus !== 'ACTIVE' ? 'border-gray-200 cursor-default' : 
                   isSelected ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300 bg-white'
                 }`}
               >
@@ -186,12 +271,12 @@ export const PublicPoll = () => {
           })}
         </div>
 
-        {!hasVoted && poll.status === 'active' && (
+        {!hasVoted && effectiveStatus === 'ACTIVE' && (
           <button 
             onClick={handleVote}
-            disabled={!selectedOption || submitting}
+            disabled={submitting}
             className={`w-full py-4 rounded-xl font-bold text-white transition-all transform flex justify-center items-center shadow-md ${
-              !selectedOption || submitting 
+              submitting 
                 ? 'bg-gray-300 cursor-not-allowed shadow-none' 
                 : 'bg-primary-600 hover:bg-primary-700 hover:-translate-y-0.5 hover:shadow-lg focus:ring-4 focus:ring-primary-200 outline-none'
             }`}

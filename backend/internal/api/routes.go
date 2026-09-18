@@ -8,6 +8,7 @@ import (
 
 func RegisterRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, pollHandler *handlers.PollHandler, publicHandler *handlers.PublicHandler, realtimeHandler *handlers.RealtimeHandler, jwtSecret string) {
 	// Global Middlewares
+	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.SecurityHeaders())
 	r.Use(middleware.RequestSizeLimit(2 * 1024 * 1024)) // 2MB Limit
 

@@ -60,15 +60,29 @@ export const Dashboard = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {polls.map(poll => (
+          {polls.map(poll => {
+            const now = Date.now();
+            const startTime = poll.start_time ? new Date(poll.start_time).getTime() : 0;
+            const endTime = poll.end_time ? new Date(poll.end_time).getTime() : Infinity;
+            
+            let effectiveStatus = 'ACTIVE';
+            if (poll.status === 'closed') effectiveStatus = 'CLOSED';
+            else if (startTime > now) effectiveStatus = 'SCHEDULED';
+            else if (now > endTime) effectiveStatus = 'EXPIRED';
+
+            return (
             <div key={poll.id} className="card hover:shadow-md transition-all flex flex-col border-gray-200 group">
               <div className="flex justify-between items-start mb-4">
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-md tracking-wide ${
-                  poll.status === 'active' 
+                  effectiveStatus === 'ACTIVE' 
                     ? 'bg-green-100 text-green-700 border border-green-200' 
+                    : effectiveStatus === 'SCHEDULED' 
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : effectiveStatus === 'EXPIRED'
+                    ? 'bg-orange-100 text-orange-700 border border-orange-200'
                     : 'bg-gray-100 text-gray-600 border border-gray-200'
                 }`}>
-                  {poll.status.toUpperCase()}
+                  {effectiveStatus}
                 </span>
                 <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md">
                   {new Date(poll.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -91,7 +105,8 @@ export const Dashboard = () => {
                 </Link>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

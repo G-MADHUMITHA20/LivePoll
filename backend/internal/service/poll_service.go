@@ -12,10 +12,10 @@ import (
 )
 
 type PollService interface {
-	CreatePoll(ctx context.Context, ownerID string, question string, optionTexts []string, expiresAt *time.Time) (*models.Poll, error)
+	CreatePoll(ctx context.Context, ownerID string, question string, optionTexts []string, startTime *time.Time, endTime *time.Time) (*models.Poll, error)
 	GetPollByID(ctx context.Context, pollID string, requesterID string) (*models.Poll, error)
 	GetPollsByOwner(ctx context.Context, ownerID string) ([]models.Poll, error)
-	UpdatePoll(ctx context.Context, pollID string, ownerID string, question string, optionTexts []string, expiresAt *time.Time) (*models.Poll, error)
+	UpdatePoll(ctx context.Context, pollID string, ownerID string, question string, optionTexts []string, status string, startTime *time.Time, endTime *time.Time) (*models.Poll, error)
 }
 
 type pollService struct {
@@ -70,7 +70,7 @@ func validatePollData(question string, optionTexts []string) ([]models.PollOptio
 	return options, nil
 }
 
-func (s *pollService) CreatePoll(ctx context.Context, ownerID string, question string, optionTexts []string, expiresAt *time.Time) (*models.Poll, error) {
+func (s *pollService) CreatePoll(ctx context.Context, ownerID string, question string, optionTexts []string, startTime *time.Time, endTime *time.Time) (*models.Poll, error) {
 	ownerObjID, err := primitive.ObjectIDFromHex(ownerID)
 	if err != nil {
 		return nil, errors.New("invalid owner ID")
@@ -81,12 +81,17 @@ func (s *pollService) CreatePoll(ctx context.Context, ownerID string, question s
 		return nil, err
 	}
 
+	if startTime != nil && endTime != nil && startTime.After(*endTime) {
+		return nil, errors.New("start time must be before end time")
+	}
+
 	poll := &models.Poll{
 		OwnerID:   ownerObjID,
 		Question:  strings.TrimSpace(question),
 		Options:   options,
 		Status:    "active",
-		ExpiresAt: expiresAt,
+		StartTime: startTime,
+		EndTime:   endTime,
 	}
 
 	err = s.pollRepo.Create(ctx, poll)
@@ -114,7 +119,7 @@ func (s *pollService) GetPollsByOwner(ctx context.Context, ownerID string) ([]mo
 	return s.pollRepo.FindByOwnerID(ctx, ownerID)
 }
 
-func (s *pollService) UpdatePoll(ctx context.Context, pollID string, ownerID string, question string, optionTexts []string, expiresAt *time.Time) (*models.Poll, error) {
+func (s *pollService) UpdatePoll(ctx context.Context, pollID string, ownerID string, question string, optionTexts []string, status string, startTime *time.Time, endTime *time.Time) (*models.Poll, error) {
 	poll, err := s.GetPollByID(ctx, pollID, ownerID)
 	if err != nil {
 		return nil, err
@@ -125,7 +130,11 @@ func (s *pollService) UpdatePoll(ctx context.Context, pollID string, ownerID str
 		return nil, err
 	}
 
-	// Simple update logic: replace question, options, and expiresAt
+	if startTime != nil && endTime != nil && startTime.After(*endTime) {
+		return nil, errors.New("start time must be before end time")
+	}
+
+	// Simple update logic: replace question, options, and times
 	poll.Question = strings.TrimSpace(question)
 	
 	// Preserve existing option IDs if texts match, else they get new IDs
@@ -144,7 +153,14 @@ func (s *pollService) UpdatePoll(ctx context.Context, pollID string, ownerID str
 	}
 
 	poll.Options = newOptions
-	poll.ExpiresAt = expiresAt
+	if status != "" {
+		if status != "active" && status != "closed" {
+			return nil, errors.New("invalid status")
+		}
+		poll.Status = status
+	}
+	poll.StartTime = startTime
+	poll.EndTime = endTime
 
 	err = s.pollRepo.Update(ctx, poll)
 	if err != nil {

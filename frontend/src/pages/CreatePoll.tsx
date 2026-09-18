@@ -5,6 +5,8 @@ import { request } from '../api/client';
 export const CreatePoll = () => {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -24,11 +26,25 @@ export const CreatePoll = () => {
     const validOptions = options.map(o => o.trim()).filter(o => o !== '');
     if (validOptions.length < 2) return setError('At least 2 non-empty options are required');
     
+    let parsedStartTime = null;
+    let parsedEndTime = null;
+    if (startTime) parsedStartTime = new Date(startTime).toISOString();
+    if (endTime) parsedEndTime = new Date(endTime).toISOString();
+
+    if (parsedStartTime && parsedEndTime && new Date(parsedStartTime) >= new Date(parsedEndTime)) {
+      return setError('Start time must be before end time');
+    }
+    
     setLoading(true);
     try {
       const res = await request('/polls', {
         method: 'POST',
-        body: JSON.stringify({ question, options: validOptions }),
+        body: JSON.stringify({ 
+          question, 
+          options: validOptions,
+          start_time: parsedStartTime,
+          end_time: parsedEndTime
+        }),
       });
       if (res.success) {
         navigate('/dashboard');
@@ -120,6 +136,27 @@ export const CreatePoll = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
               Add another option
             </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Start Time (Optional)</label>
+              <input 
+                type="datetime-local" 
+                value={startTime} onChange={e => setStartTime(e.target.value)} 
+                className="input-field text-sm text-gray-900" 
+                disabled={loading} 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">End Time (Optional)</label>
+              <input 
+                type="datetime-local" 
+                value={endTime} onChange={e => setEndTime(e.target.value)} 
+                className="input-field text-sm text-gray-900" 
+                disabled={loading} 
+              />
+            </div>
           </div>
           
           <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">

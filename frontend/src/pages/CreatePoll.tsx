@@ -59,10 +59,10 @@ export const CreatePoll = () => {
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto min-h-[calc(100vh-73px)]">
       <div className="mb-6">
-        <Link to="/dashboard" className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 transition-colors">
+        <button type="button" onClick={() => navigate(-1)} className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-          Back to Dashboard
-        </Link>
+          Back
+        </button>
       </div>
       
       <div className="card border-gray-200 dark:border-gray-700 shadow-sm">

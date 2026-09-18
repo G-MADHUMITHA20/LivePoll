@@ -147,7 +147,7 @@ export const ManagePoll = () => {
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto min-h-[calc(100vh-73px)]">
       <div className="mb-6">
-        <Link to="/dashboard" className="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors w-fit">
+        <Link to="/dashboard" className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 transition-colors w-fit">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
           Back to Dashboard
         </Link>
@@ -155,14 +155,14 @@ export const ManagePoll = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Editor Form */}
-        <div className="lg:col-span-2 card border-gray-200 shadow-sm">
-          <div className="mb-8 border-b border-gray-100 pb-6 flex justify-between items-center">
+        <div className="lg:col-span-2 card border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Manage Poll</h1>
-              <p className="text-gray-500 mt-1 text-sm">Update your poll question and options.</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Manage Poll</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Update your poll question and options.</p>
             </div>
             <span className={`text-xs font-bold px-3 py-1.5 rounded-md tracking-wide ${
-                  poll.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                  poll.status === 'active' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
             }`}>
               {poll.status.toUpperCase()}
             </span>
@@ -178,24 +178,24 @@ export const ManagePoll = () => {
 
           <form onSubmit={handleSave} className="space-y-8">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Question</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Question</label>
               <input 
                 type="text" required 
                 value={question} onChange={e => setQuestion(e.target.value)} 
-                className="input-field font-medium text-gray-900" 
+                className="input-field font-medium text-gray-900 dark:text-white" 
                 disabled={saving || poll.status !== 'active'}
                 maxLength={300}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Options</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Options</label>
               <div className="space-y-3">
                 {options.map((option, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <div className="flex-1 relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400 font-medium text-sm">{index + 1}.</span>
+                        <span className="text-gray-400 dark:text-gray-500 font-medium text-sm">{index + 1}.</span>
                       </div>
                       <input 
                         type="text" 
@@ -211,7 +211,7 @@ export const ManagePoll = () => {
                       <button 
                         type="button" 
                         onClick={() => removeOption(index)} 
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" 
+                        className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" 
                         disabled={saving}
                         aria-label="Remove option"
                       >
@@ -227,7 +227,7 @@ export const ManagePoll = () => {
                   type="button" 
                   onClick={addOption} 
                   disabled={saving || options.length >= 20} 
-                  className="mt-4 flex items-center gap-1.5 text-sm text-primary-600 font-semibold hover:text-primary-700 transition-colors disabled:opacity-50"
+                  className="mt-4 flex items-center gap-1.5 text-sm text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 transition-colors disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                   Add another option
@@ -237,26 +237,26 @@ export const ManagePoll = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Start Time (Optional)</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Start Time (Optional)</label>
                 <input 
                   type="datetime-local" 
                   value={startTime} onChange={e => setStartTime(e.target.value)} 
-                  className="input-field text-sm text-gray-900" 
+                  className="input-field text-sm text-gray-900 dark:text-white" 
                   disabled={saving || poll.status !== 'active'} 
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">End Time (Optional)</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">End Time (Optional)</label>
                 <input 
                   type="datetime-local" 
                   value={endTime} onChange={e => setEndTime(e.target.value)} 
-                  className="input-field text-sm text-gray-900" 
+                  className="input-field text-sm text-gray-900 dark:text-white" 
                   disabled={saving || poll.status !== 'active'} 
                 />
               </div>
             </div>
             
-            <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
+            <div className="pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
               <button 
                 type="submit" 
                 disabled={saving || poll.status !== 'active'} 
@@ -297,13 +297,13 @@ export const ManagePoll = () => {
           </div>
           
           {poll.status === 'active' && (
-            <div className="card border border-red-100 shadow-sm">
-              <h3 className="font-bold text-lg text-red-700 mb-2">Danger Zone</h3>
-              <p className="text-gray-500 text-sm mb-4">Closing the poll will permanently disable new votes. Existing results will be preserved.</p>
+            <div className="card border border-red-100 dark:border-red-900/50 shadow-sm bg-white dark:bg-gray-800">
+              <h3 className="font-bold text-lg text-red-700 dark:text-red-400 mb-2">Danger Zone</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Closing the poll will permanently disable new votes. Existing results will be preserved.</p>
               <button 
                 onClick={handleClosePoll} 
                 disabled={saving}
-                className="w-full py-2.5 rounded-lg font-medium text-sm text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors disabled:opacity-50"
+                className="w-full py-2.5 rounded-lg font-medium text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors disabled:opacity-50"
               >
                 {saving ? 'Processing...' : 'Close Poll'}
               </button>

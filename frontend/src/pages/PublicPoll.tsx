@@ -171,12 +171,12 @@ export const PublicPoll = () => {
   
   if (!poll) return (
     <div className="min-h-[calc(100vh-73px)] flex items-center justify-center p-4">
-      <div className="card text-center max-w-md w-full">
-        <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="card text-center max-w-md w-full dark:bg-gray-800 dark:border-gray-700 transition-colors">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/40 text-red-500 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
-        <h2 className="text-xl font-bold mb-2">Error Loading Poll</h2>
-        <p className="text-gray-500 mb-6">{error || 'Poll not found'}</p>
+        <h2 className="text-xl font-bold mb-2 dark:text-white">Error Loading Poll</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">{error || 'Poll not found'}</p>
         <Link to="/" className="btn-primary w-full block">Go to Homepage</Link>
       </div>
     </div>
@@ -185,42 +185,42 @@ export const PublicPoll = () => {
   const totalVotes = Object.values(results).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-[calc(100vh-73px)] bg-gray-50 p-4 md:p-8 flex flex-col items-center">
-      <div className="w-full max-w-xl card shadow-sm mt-4 md:mt-12">
+    <div className="min-h-[calc(100vh-73px)] bg-gray-50 dark:bg-gray-900 p-4 md:p-8 flex flex-col items-center transition-colors duration-200">
+      <div className="w-full max-w-xl card shadow-sm mt-4 md:mt-12 border-gray-200 dark:border-gray-700 dark:bg-gray-800">
         <div className="mb-10 text-center flex flex-col items-center">
           <div className="flex gap-2 items-center mb-4">
             <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full tracking-wide ${
-              effectiveStatus === 'ACTIVE' ? 'bg-green-100 text-green-700' : 
-              effectiveStatus === 'SCHEDULED' ? 'bg-blue-100 text-blue-700' :
-              effectiveStatus === 'EXPIRED' ? 'bg-orange-100 text-orange-700' :
-              'bg-red-100 text-red-700'
+              effectiveStatus === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400' : 
+              effectiveStatus === 'SCHEDULED' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400' :
+              effectiveStatus === 'EXPIRED' ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400' :
+              'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'
             }`}>
               {effectiveStatus === 'ACTIVE' ? 'ACTIVE POLL' : 
                effectiveStatus === 'SCHEDULED' ? 'SCHEDULED' : 
                effectiveStatus === 'EXPIRED' ? 'EXPIRED' : 'CLOSED POLL'}
             </span>
             {effectiveStatus === 'ACTIVE' && (
-              <span className={`text-xs font-medium flex items-center gap-1.5 px-3 py-1 rounded-full border ${connectionStatus === 'Live' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-yellow-50 text-yellow-600 border-yellow-200'}`}>
+              <span className={`text-xs font-medium flex items-center gap-1.5 px-3 py-1 rounded-full border ${connectionStatus === 'Live' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800'}`}>
                 <span className={`w-2 h-2 rounded-full ${connectionStatus === 'Live' ? 'bg-blue-500 animate-pulse' : 'bg-yellow-500'}`}></span>
                 {connectionStatus}
               </span>
             )}
           </div>
           {countdownStr && (
-            <div className="text-sm font-semibold text-gray-500 mb-3 bg-gray-100 px-4 py-1.5 rounded-full inline-block">
+            <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 bg-gray-100 dark:bg-gray-800 px-4 py-1.5 rounded-full inline-block">
               ⏱️ {countdownStr}
             </div>
           )}
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight leading-snug">{poll.question}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-snug">{poll.question}</h1>
           {hasVoted && effectiveStatus === 'ACTIVE' && (
-            <p className="text-sm text-gray-500 mt-3 font-medium bg-gray-100 px-3 py-1 rounded-full inline-block">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 font-medium bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full inline-block">
               {totalVotes} Total Votes
             </p>
           )}
         </div>
 
-        {error && <div className="mb-6 p-4 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100 flex items-center justify-center gap-2 font-medium shadow-sm"><svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg> {error}</div>}
-        {success && <div className="mb-6 p-4 bg-green-50 text-green-700 text-sm rounded-lg border border-green-100 flex items-center justify-center gap-2 font-medium shadow-sm"><svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg> {success}</div>}
+        {error && <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm rounded-lg border border-red-100 dark:border-red-800 flex items-center justify-center gap-2 font-medium shadow-sm"><svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg> {error}</div>}
+        {success && <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm rounded-lg border border-green-100 dark:border-green-800 flex items-center justify-center gap-2 font-medium shadow-sm"><svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg> {success}</div>}
 
         <div className="space-y-4 mb-8" role="radiogroup">
           {poll.options.map((opt: any) => {
@@ -248,23 +248,23 @@ export const PublicPoll = () => {
                   }
                 }}
                 className={`relative overflow-hidden p-5 rounded-xl border-2 transition-all ${hasVoted || effectiveStatus !== 'ACTIVE' ? '' : 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transform hover:-translate-y-0.5 shadow-sm hover:shadow'} ${
-                  hasVoted || effectiveStatus !== 'ACTIVE' ? 'border-gray-200 cursor-default' : 
-                  isSelected ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300 bg-white'
+                  hasVoted || effectiveStatus !== 'ACTIVE' ? 'border-gray-200 dark:border-gray-700 cursor-default bg-gray-50/50 dark:bg-gray-800' : 
+                  isSelected ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 bg-white dark:bg-gray-800'
                 }`}
               >
                 {hasVoted && (
-                  <div className="absolute top-0 left-0 bottom-0 bg-primary-100 transition-all duration-700 ease-out z-0" style={{ width: `${percentage}%` }}></div>
+                  <div className="absolute top-0 left-0 bottom-0 bg-primary-100 dark:bg-primary-900/40 transition-all duration-700 ease-out z-0" style={{ width: `${percentage}%` }}></div>
                 )}
                 <div className="relative z-10 flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     {!hasVoted && (
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-primary-600' : 'border-gray-300'}`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-primary-600' : 'border-gray-300 dark:border-gray-600'}`}>
                         {isSelected && <div className="w-2.5 h-2.5 bg-primary-600 rounded-full"></div>}
                       </div>
                     )}
-                    <span className={`font-semibold text-lg ${isSelected && !hasVoted ? 'text-primary-800' : 'text-gray-800'}`}>{opt.text}</span>
+                    <span className={`font-semibold text-lg ${isSelected && !hasVoted ? 'text-primary-800 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'}`}>{opt.text}</span>
                   </div>
-                  {hasVoted && <span className="text-sm font-bold text-gray-700 tabular-nums">{percentage}%</span>}
+                  {hasVoted && <span className="text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">{percentage}%</span>}
                 </div>
               </div>
             );
@@ -277,8 +277,8 @@ export const PublicPoll = () => {
             disabled={submitting}
             className={`w-full py-4 rounded-xl font-bold text-white transition-all transform flex justify-center items-center shadow-md ${
               submitting 
-                ? 'bg-gray-300 cursor-not-allowed shadow-none' 
-                : 'bg-primary-600 hover:bg-primary-700 hover:-translate-y-0.5 hover:shadow-lg focus:ring-4 focus:ring-primary-200 outline-none'
+                ? 'bg-gray-300 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed shadow-none' 
+                : 'bg-primary-600 hover:bg-primary-700 hover:-translate-y-0.5 hover:shadow-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 outline-none'
             }`}
           >
             {submitting ? <span className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"></span> : 'Submit Vote'}
@@ -286,8 +286,8 @@ export const PublicPoll = () => {
         )}
       </div>
       <div className="mt-12 text-center">
-        <p className="text-sm text-gray-500 mb-2">Powered by</p>
-        <Link to="/" className="text-primary-600 font-bold tracking-tight hover:opacity-80 transition-opacity">LivePoll</Link>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Powered by</p>
+        <Link to="/" className="text-primary-600 dark:text-primary-500 font-bold tracking-tight hover:opacity-80 transition-opacity">LivePoll</Link>
       </div>
     </div>
   );

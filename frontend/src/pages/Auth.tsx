@@ -35,11 +35,11 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-73px)] flex items-center justify-center px-4 bg-gray-50">
+    <div className="min-h-[calc(100vh-73px)] flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="card w-full max-w-md my-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome Back</h2>
-          <p className="text-gray-500 mt-2 text-sm">Sign in to manage your polls</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Welcome Back</h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">Sign in to manage your polls</p>
         </div>
         
         {error && (
@@ -51,7 +51,7 @@ export const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="email">Email address</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="email">Email address</label>
             <input 
               id="email" type="email" required 
               value={email} onChange={e => setEmail(e.target.value)} 
@@ -62,7 +62,7 @@ export const Login = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="password">Password</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="password">Password</label>
             <input 
               id="password" type="password" required 
               value={password} onChange={e => setPassword(e.target.value)} 
@@ -77,8 +77,8 @@ export const Login = () => {
           </button>
         </form>
         
-        <p className="text-center text-sm text-gray-600 mt-6 pt-6 border-t border-gray-100">
-          Don't have an account? <Link to="/signup" className="text-primary-600 font-semibold hover:underline">Sign up</Link>
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+          Don't have an account? <Link to="/signup" className="text-primary-600 dark:text-primary-400 font-semibold hover:underline">Sign up</Link>
         </p>
       </div>
     </div>
@@ -119,11 +119,11 @@ export const Signup = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-73px)] flex items-center justify-center px-4 bg-gray-50">
+    <div className="min-h-[calc(100vh-73px)] flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="card w-full max-w-md my-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Create Account</h2>
-          <p className="text-gray-500 mt-2 text-sm">Start making live polls in seconds</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Create Account</h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">Start making live polls in seconds</p>
         </div>
         
         {error && (
@@ -135,7 +135,7 @@ export const Signup = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="name">Full Name</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="name">Full Name</label>
             <input 
               id="name" type="text" required 
               value={name} onChange={e => setName(e.target.value)} 
@@ -145,7 +145,7 @@ export const Signup = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="email">Email address</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="email">Email address</label>
             <input 
               id="email" type="email" required 
               value={email} onChange={e => setEmail(e.target.value)} 
@@ -155,7 +155,7 @@ export const Signup = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="password">Password</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="password">Password</label>
             <input 
               id="password" type="password" required minLength={6} 
               value={password} onChange={e => setPassword(e.target.value)} 
@@ -165,7 +165,7 @@ export const Signup = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="confirm_password">Confirm Password</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="confirm_password">Confirm Password</label>
             <input 
               id="confirm_password" type="password" required minLength={6} 
               value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} 
@@ -179,8 +179,8 @@ export const Signup = () => {
           </button>
         </form>
         
-        <p className="text-center text-sm text-gray-600 mt-6 pt-6 border-t border-gray-100">
-          Already have an account? <Link to="/login" className="text-primary-600 font-semibold hover:underline">Log in</Link>
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+          Already have an account? <Link to="/login" className="text-primary-600 dark:text-primary-400 font-semibold hover:underline">Log in</Link>
         </p>
       </div>
     </div>

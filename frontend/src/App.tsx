@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/layout/Navbar';
 import { Landing } from './pages/Landing';
@@ -13,9 +14,10 @@ import { PublicPoll } from './pages/PublicPoll';
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="font-sans text-gray-900 min-h-screen bg-gray-50 flex flex-col">
-          <Navbar />
+      <ThemeProvider>
+        <Router>
+          <div className="font-sans min-h-screen flex flex-col transition-colors duration-200">
+            <Navbar />
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Landing />} />
@@ -31,8 +33,9 @@ function App() {
               <Route path="/poll/:id" element={<PublicPoll />} />
             </Routes>
           </main>
-        </div>
-      </Router>
+          </div>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

@@ -59,16 +59,16 @@ export const CreatePoll = () => {
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto min-h-[calc(100vh-73px)]">
       <div className="mb-6">
-        <Link to="/dashboard" className="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors">
+        <Link to="/dashboard" className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
           Back to Dashboard
         </Link>
       </div>
       
-      <div className="card border-gray-200 shadow-sm">
-        <div className="mb-8 border-b border-gray-100 pb-6">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create a New Poll</h1>
-          <p className="text-gray-500 mt-2 text-sm">Ask a question and define the options for your audience.</p>
+      <div className="card border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Create a New Poll</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">Ask a question and define the options for your audience.</p>
         </div>
         
         {error && (
@@ -80,7 +80,7 @@ export const CreatePoll = () => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Question</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Question</label>
             <input 
               type="text" required 
               value={question} onChange={e => setQuestion(e.target.value)} 
@@ -92,13 +92,13 @@ export const CreatePoll = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">Voting Options</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Voting Options</label>
             <div className="space-y-3">
               {options.map((option, index) => (
                 <div key={index} className="flex gap-2 items-center group">
                   <div className="flex-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-400 font-medium text-sm">{index + 1}.</span>
+                      <span className="text-gray-400 dark:text-gray-500 font-medium text-sm">{index + 1}.</span>
                     </div>
                     <input 
                       type="text" 
@@ -115,7 +115,7 @@ export const CreatePoll = () => {
                     <button 
                       type="button" 
                       onClick={() => removeOption(index)} 
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" 
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" 
                       disabled={loading}
                       aria-label="Remove option"
                       title="Remove option"
@@ -131,7 +131,7 @@ export const CreatePoll = () => {
               type="button" 
               onClick={addOption} 
               disabled={loading || options.length >= 20} 
-              className="mt-4 flex items-center gap-1.5 text-sm text-primary-600 font-semibold hover:text-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-4 flex items-center gap-1.5 text-sm text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
               Add another option
@@ -140,26 +140,26 @@ export const CreatePoll = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Start Time (Optional)</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Start Time (Optional)</label>
               <input 
                 type="datetime-local" 
                 value={startTime} onChange={e => setStartTime(e.target.value)} 
-                className="input-field text-sm text-gray-900" 
+                className="input-field text-sm text-gray-900 dark:text-white" 
                 disabled={loading} 
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">End Time (Optional)</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">End Time (Optional)</label>
               <input 
                 type="datetime-local" 
                 value={endTime} onChange={e => setEndTime(e.target.value)} 
-                className="input-field text-sm text-gray-900" 
+                className="input-field text-sm text-gray-900 dark:text-white" 
                 disabled={loading} 
               />
             </div>
           </div>
           
-          <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
+          <div className="pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
             <Link to="/dashboard" className="btn-secondary px-6">Cancel</Link>
             <button type="submit" disabled={loading} className="btn-primary px-8 flex items-center justify-center">
               {loading ? <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span> : 'Create Poll'}

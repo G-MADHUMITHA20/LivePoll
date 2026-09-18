@@ -41,17 +41,18 @@ The application uses React for the frontend, Go/Gin for the backend, MongoDB for
   
 ### Login / Signup  
   
-  ### Dashboard  <img width="1600" height="707" alt="signin signup" src="https://github.com/user-attachments/assets/f1f38c94-68da-49cb-af5f-a8fede0898b4" />
-
-  
----  
-  
-
-  
+ <img width="1600" height="707" alt="signin signup" src="https://github.com/user-attachments/assets/9f514e58-3e23-4063-9ad5-0d9eaac61e9b" />
 
 
   
 ---  
+  
+
+  
+
+
+  
+
   
 ### Create Poll  
   

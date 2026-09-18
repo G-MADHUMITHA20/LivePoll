@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { API_URL } from '../api/client';
 import { getVoterId } from '../utils/voterId';
 
 export const PublicPoll = () => {
@@ -25,7 +26,7 @@ export const PublicPoll = () => {
   useEffect(() => {
     const fetchPoll = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/v1/public/polls/${id}`).then(r => r.json());
+        const res = await fetch(`${API_URL}/public/polls/${id}`).then(r => r.json());
         if (res.success) {
           setPoll(res.poll);
           if (res.results) setResults(res.results);
@@ -91,11 +92,11 @@ export const PublicPoll = () => {
   useEffect(() => {
     if (!poll || effectiveStatus !== 'ACTIVE') return;
 
-    const sse = new EventSource(`http://localhost:8080/api/v1/public/polls/${id}/events`);
+    const sse = new EventSource(`${API_URL}/public/polls/${id}/events`);
     
     sse.onopen = () => {
       setConnectionStatus('Live');
-      fetch(`http://localhost:8080/api/v1/public/polls/${id}`)
+      fetch(`${API_URL}/public/polls/${id}`)
         .then(r => r.json())
         .then(res => {
           if (res.success && res.results) setResults(res.results);
@@ -133,7 +134,7 @@ export const PublicPoll = () => {
     setSuccess('');
     
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/public/polls/${id}/vote`, {
+      const res = await fetch(`${API_URL}/public/polls/${id}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ option_id: selectedOption, voter_id: getVoterId() })

@@ -6,9 +6,9 @@ import (
 	"github.com/internship/live-polling-tool/backend/internal/api/middleware"
 )
 
-func RegisterRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, pollHandler *handlers.PollHandler, publicHandler *handlers.PublicHandler, realtimeHandler *handlers.RealtimeHandler, jwtSecret string) {
+func RegisterRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, pollHandler *handlers.PollHandler, publicHandler *handlers.PublicHandler, realtimeHandler *handlers.RealtimeHandler, jwtSecret string, frontendURL string) {
 	// Global Middlewares
-	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.CORSMiddleware(frontendURL))
 	r.Use(middleware.SecurityHeaders())
 	r.Use(middleware.RequestSizeLimit(2 * 1024 * 1024)) // 2MB Limit
 

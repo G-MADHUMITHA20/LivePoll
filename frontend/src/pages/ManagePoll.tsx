@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { request } from '../api/client';
+import { request, API_URL } from '../api/client';
 
 export const ManagePoll = () => {
   const { id } = useParams();
@@ -12,6 +12,7 @@ export const ManagePoll = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export const ManagePoll = () => {
           setOptions(res.poll.options.map((o: any) => o.text));
           if (res.poll.start_time) setStartTime(formatForInput(res.poll.start_time));
           if (res.poll.end_time) setEndTime(formatForInput(res.poll.end_time));
+          if (res.results) setResults(res.results);
         }
       } catch (err: any) {
         setError(err.message || 'Failed to load poll. It may have been deleted.');
@@ -43,6 +45,25 @@ export const ManagePoll = () => {
     };
     fetchPoll();
   }, [id]);
+
+  useEffect(() => {
+    if (!poll || poll.status !== 'active') return;
+
+    const sse = new EventSource(`${API_URL}/public/polls/${id}/events`);
+    
+    sse.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'vote_update' && data.results) {
+          setResults(data.results);
+        }
+      } catch (e) {
+        console.error("Error parsing SSE event", e);
+      }
+    };
+
+    return () => sse.close();
+  }, [poll, id]);
 
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
@@ -144,6 +165,8 @@ export const ManagePoll = () => {
     </div>
   );
 
+  const totalVotes = Object.values(results).reduce((a, b) => a + b, 0);
+
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto min-h-[calc(100vh-73px)]">
       <div className="mb-6">
@@ -155,7 +178,7 @@ export const ManagePoll = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Editor Form */}
-        <div className="lg:col-span-2 card border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="lg:col-span-3 card border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6 flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Manage Poll</h1>
@@ -268,8 +291,51 @@ export const ManagePoll = () => {
           </form>
         </div>
 
+        {/* Voting Results Section */}
+        <div className="lg:col-span-2 card border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="mb-6 border-b border-gray-100 dark:border-gray-700 pb-4 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Voting Results</h2>
+            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+              Total Votes: {totalVotes}
+            </span>
+          </div>
+
+          {totalVotes === 0 ? (
+            <div className="text-center py-10">
+              <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              </div>
+              <p className="text-gray-500 dark:text-gray-400">No votes yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {poll.options.map((opt: any) => {
+                const voteCount = results[opt.id] || 0;
+                const percentage = Math.round((voteCount / totalVotes) * 100);
+                return (
+                  <div key={opt.id}>
+                    <div className="flex justify-between items-end mb-1.5">
+                      <span className="font-semibold text-gray-800 dark:text-gray-200">{opt.text}</span>
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-gray-900 dark:text-white mr-2">{percentage}%</span>
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{voteCount} {voteCount === 1 ? 'vote' : 'votes'}</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className="bg-primary-500 dark:bg-primary-600 h-3 rounded-full transition-all duration-500 ease-out" 
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* Sidebar Actions */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-1">
           <div className="card bg-gray-900 border-none text-white shadow-md">
             <h3 className="font-bold text-lg mb-2">Share Link</h3>
             <p className="text-gray-400 text-sm mb-4 leading-relaxed">Share this link with your audience to start gathering votes immediately.</p>

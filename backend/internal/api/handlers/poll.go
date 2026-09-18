@@ -10,11 +10,13 @@ import (
 
 type PollHandler struct {
 	pollService service.PollService
+	voteService service.VoteService
 }
 
-func NewPollHandler(pollService service.PollService) *PollHandler {
+func NewPollHandler(pollService service.PollService, voteService service.VoteService) *PollHandler {
 	return &PollHandler{
 		pollService: pollService,
+		voteService: voteService,
 	}
 }
 
@@ -79,9 +81,15 @@ func (h *PollHandler) GetPoll(c *gin.Context) {
 		return
 	}
 
+	results, err := h.voteService.GetPollResults(c.Request.Context(), pollID)
+	if err != nil {
+		results = make(map[string]int) // fallback to empty results if fetch fails
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"poll":    poll,
+		"results": results,
 	})
 }
 

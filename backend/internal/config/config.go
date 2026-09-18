@@ -13,6 +13,7 @@ type Config struct {
 	RedisURI     string
 	JWTSecret    string
 	Environment  string
+	FrontendURL  string
 }
 
 func Load() *Config {
@@ -26,11 +27,17 @@ func Load() *Config {
 		port = "8080"
 	}
 
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:5173"
+	}
+
 	return &Config{
 		Port:        port,
 		MongoURI:    os.Getenv("MONGO_URI"),
 		RedisURI:    os.Getenv("REDIS_URI"),
 		JWTSecret:   os.Getenv("JWT_SECRET"),
 		Environment: os.Getenv("ENVIRONMENT"),
+		FrontendURL: frontendURL,
 	}
 }

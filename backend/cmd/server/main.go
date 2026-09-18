@@ -42,14 +42,14 @@ func main() {
 
 	// Initialize Handlers
 	authHandler := handlers.NewAuthHandler(authService)
-	pollHandler := handlers.NewPollHandler(pollService)
+	pollHandler := handlers.NewPollHandler(pollService, voteService)
 	publicHandler := handlers.NewPublicHandler(voteService)
 	realtimeHandler := handlers.NewRealtimeHandler(voteService)
 
 	r := gin.Default()
 
 	// Register Routes
-	api.RegisterRoutes(r, authHandler, pollHandler, publicHandler, realtimeHandler, cfg.JWTSecret)
+	api.RegisterRoutes(r, authHandler, pollHandler, publicHandler, realtimeHandler, cfg.JWTSecret, cfg.FrontendURL)
 
 	log.Printf("Server starting on port %s...", cfg.Port)
 	if err := r.Run(":" + cfg.Port); err != nil {

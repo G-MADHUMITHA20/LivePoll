@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -34,7 +35,7 @@ func Load() *Config {
 
 	return &Config{
 		Port:        port,
-		MongoURI:    os.Getenv("MONGO_URI"),
+		MongoURI:    strings.TrimSpace(os.Getenv("MONGO_URI")),
 		RedisURI:    os.Getenv("REDIS_URI"),
 		JWTSecret:   os.Getenv("JWT_SECRET"),
 		Environment: os.Getenv("ENVIRONMENT"),

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/internship/live-polling-tool/backend/internal/service"
+	"github.com/redis/go-redis/v9"
 )
 
 type RealtimeHandler struct {
@@ -33,12 +34,14 @@ func (h *RealtimeHandler) StreamEvents(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// 3. Subscribe to Redis
 	pubsub := h.voteService.Subscribe(c.Request.Context(), pollID)
-	defer pubsub.Close()
-	ch := pubsub.Channel()
+	var ch <-chan *redis.Message
+	if pubsub != nil {
+		defer pubsub.Close()
+		ch = pubsub.Channel()
+	}
 
 	log.Printf("Client connected to realtime stream for poll: %s", pollID)
 

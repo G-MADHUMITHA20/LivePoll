@@ -119,13 +119,18 @@ func (s *voteService) SubmitVote(ctx context.Context, pollID string, optionID st
 		}
 
 		payloadBytes, _ := json.Marshal(payload)
-		s.redisClient.Publish(context.Background(), "poll:"+pollID+":events", payloadBytes)
+		if s.redisClient != nil {
+			s.redisClient.Publish(context.Background(), "poll:"+pollID+":events", payloadBytes)
+		}
 	}
 
 	return nil
 }
 
 func (s *voteService) Subscribe(ctx context.Context, pollID string) *redis.PubSub {
+	if s.redisClient == nil {
+		return nil
+	}
 	return s.redisClient.Subscribe(ctx, "poll:"+pollID+":events")
 }
 
